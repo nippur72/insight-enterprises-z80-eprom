@@ -202,7 +202,7 @@ E174: D1                                POP     DE
 E175: 29                                ADD     HL,HL
 E176: 29                                ADD     HL,HL
 E177: 19                                ADD     HL,DE
-E178: 11 03 E2                          LD      DE,0E203h
+E178: 11 03 E2                          LD      DE,JUMPTABLE
 E17B: 19                                ADD     HL,DE
 E17C: D1                                POP     DE
 E17D: 19                                ADD     HL,DE
@@ -215,39 +215,43 @@ E182: E9                                JP      (HL)
 E183: D1                         LE183: POP     DE
 E184: C9                                RET
 
-E185: DB                         LE185: DB      0DBh
-E186: 2D                                DB      2Dh     ; '-'
-E187: E6                                DB      0E6h
-E188: 04                                DB      04h
-E189: CA                                DB      0CAh
-E18A: 85                                DB      85h
-E18B: E1                                DB      0E1h
-E18C: 79                                DB      79h     ; 'y'
-E18D: E6                                DB      0E6h
-E18E: 7F                                DB      7Fh
-E18F: D3                                DB      0D3h
-E190: 2C                                DB      2Ch     ; ','
-E191: C9                                DB      0C9h
-E192: DB                                DB      0DBh
-E193: 2F                                DB      2Fh     ; '/'
-E194: E6                                DB      0E6h
-E195: 04                                DB      04h
-E196: CA                                DB      0CAh
-E197: 92                                DB      92h
-E198: E1                                DB      0E1h
-E199: 79                                DB      79h     ; 'y'
-E19A: E6                                DB      0E6h
-E19B: 7F                                DB      7Fh
-E19C: D3                                DB      0D3h
-E19D: 2E                                DB      2Eh     ; '.'
-E19E: C9                                DB      0C9h
-E19F: 3E                                DB      3Eh     ; '>'
-E1A0: FF                                DB      0FFh
-E1A1: C9                                DB      0C9h
-E1A2: 3E                                DB      3Eh     ; '>'
-E1A3: 1A                                DB      1Ah
-E1A4: C9                                DB      0C9h
-E1A5: C9                                DB      0C9h
+;
+; JUMP TABLE CODE
+;
+
+                                        ; Entry Point
+                                        ; --- START PROC LE185 ---
+E185: DB 2D                      LE185: IN      A,(2Dh) ; '-'
+E187: E6 04                             AND     04h
+E189: CA 85 E1                          JP      Z,LE185
+E18C: 79                                LD      A,C
+E18D: E6 7F                             AND     7Fh     ; ''
+E18F: D3 2C                             OUT     (2Ch),A ; ','
+E191: C9                                RET
+
+                                        ; Entry Point
+                                        ; --- START PROC LE192 ---
+E192: DB 2F                      LE192: IN      A,(2Fh) ; '/'
+E194: E6 04                             AND     04h
+E196: CA 92 E1                          JP      Z,LE192
+E199: 79                                LD      A,C
+E19A: E6 7F                             AND     7Fh     ; ''
+E19C: D3 2E                             OUT     (2Eh),A ; '.'
+E19E: C9                                RET
+
+                                        ; Entry Point
+                                        ; --- START PROC LE19F ---
+E19F: 3E FF                      LE19F: LD      A,0FFh
+E1A1: C9                                RET
+
+                                        ; Entry Point
+                                        ; --- START PROC LE1A2 ---
+E1A2: 3E 1A                      LE1A2: LD      A,1Ah
+E1A4: C9                                RET
+
+                                        ; Entry Point
+                                        ; --- START PROC LE1A5 ---
+E1A5: C9                         LE1A5: RET
 
                                         ; --- START PROC LE1A6 ---
 E1A6: 01 00 00                   LE1A6: LD      BC,0000h
@@ -306,46 +310,30 @@ E1FF: 3E 01                             LD      A,01h
 E201: C9                                RET
 
 E202: 00                         LE202: DB      00h
-E203: 9F                                DB      9Fh
-E204: E1                                DB      0E1h
-E205: 9F                                DB      9Fh
-E206: E1                                DB      0E1h
-E207: A2                                DB      0A2h
-E208: E1                                DB      0E1h
-E209: 85                                DB      85h
-E20A: E1                                DB      0E1h
-E20B: A5                                DB      0A5h
-E20C: E1                                DB      0E1h
-E20D: 9F                                DB      9Fh
-E20E: E1                                DB      0E1h
-E20F: 9F                                DB      9Fh
-E210: E1                                DB      0E1h
-E211: A2                                DB      0A2h
-E212: E1                                DB      0E1h
-E213: 92                                DB      92h
-E214: E1                                DB      0E1h
-E215: A5                                DB      0A5h
-E216: E1                                DB      0E1h
-E217: 9F                                DB      9Fh
-E218: E1                                DB      0E1h
-E219: 9F                                DB      9Fh
-E21A: E1                                DB      0E1h
-E21B: A2                                DB      0A2h
-E21C: E1                                DB      0E1h
-E21D: D8                                DB      0D8h
-E21E: E8                                DB      0E8h
-E21F: A5                                DB      0A5h
-E220: E1                                DB      0E1h
-E221: 9F                                DB      9Fh
-E222: E1                                DB      0E1h
-E223: 9F                                DB      9Fh
-E224: E1                                DB      0E1h
-E225: A2                                DB      0A2h
-E226: E1                                DB      0E1h
-E227: A5                                DB      0A5h
-E228: E1                                DB      0E1h
-E229: A5                                DB      0A5h
-E22A: E1                                DB      0E1h
+
+; this is a big jump table
+
+                                        JUMPTABLE:
+E203:                                   DW $E19F
+E205:                                   DW $E19F
+E207:                                   DW $E1A2
+E209:                                   DW $E185
+E20B:                                   DW $E1A5
+E20D:                                   DW $E19F
+E20F:                                   DW $E19F
+E211:                                   DW $E1A2
+E213:                                   DW $E192
+E215:                                   DW $E1A5
+E217:                                   DW $E19F
+E219:                                   DW $E19F
+E21B:                                   DW $E1A2
+E21D:                                   DW $E8D8
+E21F:                                   DW $E1A5
+E221:                                   DW $E19F
+E223:                                   DW $E19F
+E225:                                   DW $E1A2
+E227:                                   DW $E1A5
+E229:                                   DW $E1A5
 
 E22B: 02                                DB      02h
 E22C: 25                                DB      25h     ; '%'
@@ -1651,10 +1639,11 @@ E8D1: 32 57 EA                          LD      (LEA57),A
 E8D4: CD 72 E9                          CALL    LE972
 E8D7: C9                                RET
 
-E8D8: 2A                         LE8D8: DB      2Ah     ; '*'
-E8D9: 53                                DB      53h     ; 'S'
-E8DA: EA                                DB      0EAh
-E8DB: E9                                DB      0E9h
+                                        ; Entry Point
+                                        ; --- START PROC LE8D8 ---
+E8D8: 2A 53 EA                   LE8D8: LD      HL,(LEA53)
+E8DB: E9                                JP      (HL)
+
 E8DC: 79                                DB      79h     ; 'y'
 E8DD: E6                                DB      0E6h
 E8DE: 7F                                DB      7Fh
@@ -2116,6 +2105,10 @@ EAA1: 4F                                LD      C,A
 EAA2: CD 3F E1                          CALL    CHROUT
 EAA5: E1                                POP     HL
 EAA6: 18 F4                             JR      PRNSTRZ
+
+;***************************************************************************************
+; meaningless code starts from here
+;***************************************************************************************
 
 EAA8: 1A                         LEAA8: DB      1Ah
 EAA9: 1A                                DB      1Ah

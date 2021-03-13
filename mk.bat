@@ -1,1 +1,1 @@
-yazd "ie rom.bin" --addr:0xe000 --entry:0xE000 --list > ierom.asm
+yazd "ie rom.bin" --addr:0xe000 --entry:0xE000 --entry:0xE185 --entry:0xE192 --entry:0xE19F --entry:0xE1A2 --entry:0xE1A5  --entry:0xE8D8 --list > ierom.asm

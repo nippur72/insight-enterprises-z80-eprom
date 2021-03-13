@@ -178,39 +178,39 @@ E182: E9                                JP      (HL)
 E183: D1                         LE183: POP     DE
 E184: C9                                RET
 
-E185: DB                         LE185: DB      0DBh
-E186: 2D                                DB      2Dh     ; '-'
-E187: E6                                DB      0E6h
-E188: 04                                DB      04h
-E189: CA                                DB      0CAh
-E18A: 85                                DB      85h
-E18B: E1                                DB      0E1h
-E18C: 79                                DB      79h     ; 'y'
-E18D: E6                                DB      0E6h
-E18E: 7F                                DB      7Fh
-E18F: D3                                DB      0D3h
-E190: 2C                                DB      2Ch     ; ','
-E191: C9                                DB      0C9h
-E192: DB                                DB      0DBh
-E193: 2F                                DB      2Fh     ; '/'
-E194: E6                                DB      0E6h
-E195: 04                                DB      04h
-E196: CA                                DB      0CAh
-E197: 92                                DB      92h
-E198: E1                                DB      0E1h
-E199: 79                                DB      79h     ; 'y'
-E19A: E6                                DB      0E6h
-E19B: 7F                                DB      7Fh
-E19C: D3                                DB      0D3h
-E19D: 2E                                DB      2Eh     ; '.'
-E19E: C9                                DB      0C9h
-E19F: 3E                                DB      3Eh     ; '>'
-E1A0: FF                                DB      0FFh
-E1A1: C9                                DB      0C9h
-E1A2: 3E                                DB      3Eh     ; '>'
-E1A3: 1A                                DB      1Ah
-E1A4: C9                                DB      0C9h
-E1A5: C9                                DB      0C9h
+                                        ; Entry Point
+                                        ; --- START PROC LE185 ---
+E185: DB 2D                      LE185: IN      A,(2Dh) ; '-'
+E187: E6 04                             AND     04h
+E189: CA 85 E1                          JP      Z,LE185
+E18C: 79                                LD      A,C
+E18D: E6 7F                             AND     7Fh     ; ''
+E18F: D3 2C                             OUT     (2Ch),A ; ','
+E191: C9                                RET
+
+                                        ; Entry Point
+                                        ; --- START PROC LE192 ---
+E192: DB 2F                      LE192: IN      A,(2Fh) ; '/'
+E194: E6 04                             AND     04h
+E196: CA 92 E1                          JP      Z,LE192
+E199: 79                                LD      A,C
+E19A: E6 7F                             AND     7Fh     ; ''
+E19C: D3 2E                             OUT     (2Eh),A ; '.'
+E19E: C9                                RET
+
+                                        ; Entry Point
+                                        ; --- START PROC LE19F ---
+E19F: 3E FF                      LE19F: LD      A,0FFh
+E1A1: C9                                RET
+
+                                        ; Entry Point
+                                        ; --- START PROC LE1A2 ---
+E1A2: 3E 1A                      LE1A2: LD      A,1Ah
+E1A4: C9                                RET
+
+                                        ; Entry Point
+                                        ; --- START PROC LE1A5 ---
+E1A5: C9                         LE1A5: RET
 
                                         ; --- START PROC LE1A6 ---
 E1A6: 01 00 00                   LE1A6: LD      BC,0000h
@@ -1609,11 +1609,12 @@ E8D1: 32 57 EA                          LD      (LEA57),A
 E8D4: CD 72 E9                          CALL    LE972
 E8D7: C9                                RET
 
-E8D8: 2A                         LE8D8: DB      2Ah     ; '*'
-E8D9: 53                                DB      53h     ; 'S'
-E8DA: EA                                DB      0EAh
-E8DB: E9                                DB      0E9h
-E8DC: 79                                DB      79h     ; 'y'
+                                        ; Entry Point
+                                        ; --- START PROC LE8D8 ---
+E8D8: 2A 53 EA                   LE8D8: LD      HL,(LEA53)
+E8DB: E9                                JP      (HL)
+
+E8DC: 79                         LE8DC: DB      79h     ; 'y'
 E8DD: E6                                DB      0E6h
 E8DE: 7F                                DB      7Fh
 E8DF: 4F                                DB      4Fh     ; 'O'
@@ -1989,7 +1990,7 @@ EA4F: 01                                DB      01h
 EA50: 4E                                DB      4Eh     ; 'N'
 EA51: 00                                DB      00h
 EA52: 00                                DB      00h
-EA53: DC                                DB      0DCh
+EA53: DC                         LEA53: DB      0DCh
 EA54: E8                                DB      0E8h
 EA55: 00                                DB      00h
 EA56: 00                         LEA56: DB      00h
@@ -3274,6 +3275,18 @@ references to port 23h
         E4C7 OUT (23h),A
         E4E2 OUT (23h),A
 
+references to port 2Ch
+        E18F OUT (2Ch),A
+
+references to port 2Dh
+        E185 IN A,(2Dh)
+
+references to port 2Eh
+        E19C OUT (2Eh),A
+
+references to port 2Fh
+        E192 IN A,(2Fh)
+
 references to port 34h
         E02E IN A,(34h)
         E067 IN A,(34h)
@@ -3298,11 +3311,16 @@ references to port 3Dh
         E76C OUT (3Dh),A
         E777 OUT (3Dh),A
 
-Procedures (36):
+Procedures (42):
   Proc  Length  References Dependants
   LE000  013F            0         12
   LE13F  001D            1          1
   LE15C  0029            1          0
+  LE185  000D            1          0
+  LE192  000D            1          0
+  LE19F  0003            0          0
+  LE1A2  0003            0          0
+  LE1A5  0001            0          0
   LE1A6  0005            1          1
   LE1AB  002D            2          0
   LE1D8  0005            2          0
@@ -3333,6 +3351,7 @@ Procedures (36):
   LE7A8  001F            2          0
   LE7C7  0018            1          1
   LE8BB  001D            1          2
+  LE8D8  0004            0          0
   LE972  0003            1          1
   LEA91  000B            6          0
   LEA9C  000C            2          1
@@ -3416,3 +3435,9 @@ LE000 - Entry Point
             LE603
               LE620
   LE1D8
+LE185 - Entry Point
+LE192 - Entry Point
+LE19F - Entry Point
+LE1A2 - Entry Point
+LE1A5 - Entry Point
+LE8D8 - Entry Point
