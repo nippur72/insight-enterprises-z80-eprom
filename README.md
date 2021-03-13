@@ -7,15 +7,17 @@ Only a very small part has been disassembled so far.
 
 If you want to contribute please submit a pull request or write an issue.
 
-WHAT HAS BEEN FOUND SO FAR
-==========================
+## WHAT HAS BEEN FOUND SO FAR
 
-1) at start the EPROM is copied in RAM at $E000 and then excuted from there;
-   It does that by a trick I do not full understand (see the code).
+- The EPROM does not contain the character generator bitmap data;
+  It contains useless data after $EB00 ($EAA7 is last meaningful data byte)
 
-2) I/O port 34h seems to contain a sort of memory configuration switches
-   There are 4 memory configurations, the video RAM may be $2000 or $4000 depending
-   on the memory configuration
+- At the start the EPROM is copied in RAM at $E000 and then excuted from there;
+  It does that by a trick I do not full understand (see the code).
+
+- I/O port 34h seems to contain a sort of memory configuration switches
+  There are 4 memory configurations, the video RAM may be $2000 or $4000 depending
+  on the memory configuration
 
 
 
