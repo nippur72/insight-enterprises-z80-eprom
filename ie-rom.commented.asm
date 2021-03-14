@@ -8,34 +8,43 @@ CHROUT   EQU $E13F
 
 VIDEOPTR EQU $FE24     ; points to video memory
 
-; other constants
-
-TMPSTACK EQU $F980     ; temporary stack during copy from EPROM to RAM
-
 ; **************************************************************************************
-; Copies the content of the EPROM in ram at $E000.
-; The destination address HL is calculated in a strange
-; way, first a routine made of:
-;   POP HL
-;   PUSH HL
-;   RET
-; is written in RAM at $F900 and executed with stack pointing
-; at $F980. The resulting HL is used as destination address for
-; copying the EPROM
+; Copies the EPROM in RAM and exectues it.
+;
+; Decoded by John Robert Strohm
+; https://www.facebook.com/groups/cpmusers/permalink/1867843480057958/
+;
+; The EEPROM is sitting *SOMEWHERE* in the 64K memory space, but you don't know where.
+; The EEPROM is *ASSEMBLED* as though it was in RAM, somewhere ELSE.
+; Execution has been started, manually, at the EEPROM start address. The code up to and
+; including the CALL instruction is all absolute code, hard-coded addresses.
+; After it executes the CALL instruction, the PC contains F900(hex).
+; The top of the stack contains the return address, ENTRY+12(hex) (18 decimal).
+; (0FFEEh is -18 (decimal).) The return address is popped into HL, then pushed back
+; onto the stack, so that the RET can then return to the LD DE, 0FFEEh instruction
+; at ENTRY+12(hex).
+; What this is doing is finding out where the EEPROM is in the 64K address space.
+; It then subtracts 12 (hex), to get the address of ENTRY *IN* *THE* *EEPROM*, as
+; opposed to where it was assembled to live, and then it sets up the LDIR block copy.
+; I think it could just as easily have been done with only two instruction bytes
+; written to 0F900h (POP HL, LD PC,HL) instead of three (POP HL, PUSH HL, RET),
+; but very few assembly language programmers are likely to be familiar with that
+; particular quirky instruction, and there might have been a coding standard
+; that outlawed its use.
 
 E000: F3                         ENTRY: DI                     ; disables interrupts
-E001: 31 80 F9                          LD      SP,TMPSTACK    ; set a stack
+E001: 31 80 F9                          LD      SP,0F980h      ; set a temporary stack in high RAM
 E004: 21 E1 E5                          LD      HL,0E5E1h      ; POP HL, PUSH HL opcodes
-E007: 22 00 F9                          LD      (0F900h),HL    ; write opcodes in mem
+E007: 22 00 F9                          LD      (0F900h),HL    ; write opcodes in memory
 E00A: 3E C9                             LD      A,0C9h         ; RET opcode
-E00C: 32 02 F9                          LD      (0F902h),A     ; write opcode in mem
-E00F: CD 00 F9                          CALL    0F900h         ; calls POP HL+PUSH HL+RET
-E012: 11 EE FF                          LD      DE,0FFEEh      ; ?DE = -17
-E015: 19                                ADD     HL,DE          ; HL = HL - 17
-E016: 11 00 E0                          LD      DE,ENTRY       ; source = start of this EPROM
+E00C: 32 02 F9                          LD      (0F902h),A     ; write opcode in memory
+E00F: CD 00 F9                          CALL    0F900h         ; gets PC in HL by calling POP HL+PUSH HL+RET
+E012: 11 EE FF                          LD      DE,0FFEEh      ; steps back -18 bytes
+E015: 19                                ADD     HL,DE          ; HL = HL - 18, now points to ENTRY in EPROM address
+E016: 11 00 E0                          LD      DE,ENTRY       ; destination address where to copy the EPROM
 E019: 01 00 10                          LD      BC,1000h       ; copies 4K of data
-E01C: ED B0                             LDIR                   ; do the copy
-E01E: C3 21 E0                          JP      LE021          ; continue in RAM
+E01C: ED B0                             LDIR                   ; do copy, from EEPROM calculated address to $E000
+E01E: C3 21 E0                          JP      LE021          ; continue execution in RAM
 
 ;
 ; Boots the EPROM from RAM
